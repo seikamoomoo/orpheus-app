@@ -1,0 +1,90 @@
+<main class="content">
+  <section id="posts">
+
+    {% for post in posts %}
+    <div class="post" post-id="{{post.postID}}" user-id="{{post.userID}}">
+
+      <div class="post-header">
+        <a href="users/{{post.username}}" class="post-username">
+          {{post.username}}
+        </a>
+
+        <span class="post-options-container">
+          <button type="button" class="post-edit-button action-button">Edit</button>
+          <button type="button" class="post-delete-button action-button">Delete</button>
+        </span>
+
+      </div>
+
+      <div class="post-contents">
+
+        <div class="post-graphic-container">
+          <img src="{{post.graphic}}" alt="{{post.title}}">
+        </div>
+
+        <div class="post-sound-container">
+          <audio controls>
+            <source src="{{post.sound}}">
+            Your browser does not support the audio element.
+          </audio>
+        </div>
+
+        <div class="post-content-container">
+          <a href="posts/{{post.postID}}" class="post-title">
+            {{post.title}}
+          </a>
+          <p class="post-description">
+            {{post.description}}
+          </p>
+        </div>
+
+        <div class="post-embed-container">
+          <a href="posts/{{post.embedPostID}}">
+            [embedded post preview]
+          </a>
+        </div>
+
+        <hr>
+
+        <div class="post-info-container">
+          <div class="post-time">{{post.timeCreated}}</div>
+          <div class="post-tags">({{post.tags}})</div>
+        </div>
+
+        <div class="post-comments-container">
+
+          <div id="comments">
+
+              {% for comment in comments}
+              
+                <div class="comment" comment-id="{{commentID}}" post-id="{{postID}}" user-id="{{userID}}">
+                  <div class="comment-contents">
+                    <a href="users/{{username}}"class="comment-username">
+                      {{username}}
+                    </a>
+                    <p class="comment-text">
+                      {{text}}
+                    </p>
+                  </div>
+                </div>
+              {% endfor %}
+
+          </div>
+
+        </div>
+
+        <div class="send-comments-container">
+          <input type="text" id="text-input" class="text-box" placeholder="Leave a comment (be nice!)">
+          <button class="send-button action-button">Send</button>
+        </div>
+
+      </div>
+    </div>
+    {% endfor %}
+
+  </section>
+
+  <button type="button" id="create-post-button"> + </button>
+  {{> create-post}}
+
+</main>
