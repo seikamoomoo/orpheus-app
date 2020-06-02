@@ -1,0 +1,12 @@
+<div class="profile" user-id="{{userID}}">
+  <h1 class="profile-username">{{user.username}}</h2>
+</div>
+<section class="user-posts">
+
+    {{#each posts}}
+      {{#if userID}}
+        {{> post}}
+      {{/if}}
+    {{/each}}
+
+</section>

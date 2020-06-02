@@ -1,3 +1,5 @@
+{% extends "layouts/main.html" %}
+{% block content %}
 <main class="content">
   <section id="posts">
 
@@ -55,18 +57,19 @@
 
           <div id="comments">
 
-              {% for comment in comments}
-              
-                <div class="comment" comment-id="{{commentID}}" post-id="{{postID}}" user-id="{{userID}}">
+              {% for comment in comments %}
+                {% if comment.postID == post.postID %}
+                <div class="comment" comment-id="{{comment.commentID}}" post-id="{{comment.postID}}" user-id="{{comment.userID}}">
                   <div class="comment-contents">
-                    <a href="users/{{username}}"class="comment-username">
-                      {{username}}
+                    <a href="users/{{comment.username}}"class="comment-username">
+                      {{comment.username}}
                     </a>
                     <p class="comment-text">
-                      {{text}}
+                      {{comment.text}}
                     </p>
                   </div>
                 </div>
+                {% endif %}
               {% endfor %}
 
           </div>
@@ -85,6 +88,51 @@
   </section>
 
   <button type="button" id="create-post-button"> + </button>
-  {{> create-post}}
+
+  <!-- Modal Stuff -->
+  <div id="modal-backdrop" class="hidden"></div>
+
+  <div id="create-modal" class="hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Create a Post</h3>
+        <button type="button" id="modal-close" class="modal-hide-button">&times;</button>
+      </div>
+
+      <!-- <hr id="create-hr"> -->
+
+      <div class="modal-body">
+        <div class="post-input-element" id="title-element">
+          <input type="text" id="post-title-input" placeholder="Title" required></input>
+        </div>
+
+        <div class="post-input-element">
+          <input type="text" id="post-graphic-input" placeholder="graphic" required>
+        </div>
+
+        <div class="post-input-element">
+          <input type="text" id="post-sound-input" placeholder="sound" required>
+        </div>
+
+        <div class="post-input-element" id="description-element">
+          <textarea id="post-description-input" placeholder="description"></textarea>
+        </div>
+
+        <div class="post-input-element">
+          <input type="text" id="post-embed-input" placeholder="embed URL">
+        </div>
+
+        <div class="post-input-element">
+          <input type="text" id="post-tags-input" placeholder="tags">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" id="modal-cancel" class="modal-hide-button action-button">Cancel</button>
+        <button type="button" id="modal-accept" class="action-button">Publish</button>
+      </div>
+    </div>
+  </div>
 
 </main>
+{% endblock %}
