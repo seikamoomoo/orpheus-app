@@ -1,5 +1,6 @@
 from flask import Flask, render_template
 from flask import request, redirect
+import MySQLdb as my
 from db_connector import connect_to_database, execute_query
 from flask_bootstrap import Bootstrap
 
@@ -13,11 +14,23 @@ def create_app():
 
 app = create_app()
 
+
 def get_feed(user):
     db_connection = connect_to_database()
-    query = 'SELECT feedID from ContentFeeds WHERE userID = %d' % (user)
+    query = 'SELECT feedID, interests from ContentFeeds WHERE userID = %d' % (user)
     feed = execute_query(db_connection, query).fetchone()
-    return feed[0]
+    return feed
+
+
+def add_to_feed(post, feed):
+    db_connection = connect_to_database()
+    try:
+        query = 'INSERT INTO Posts_Feeds(postID, feedID) VALUES (%s,%s)'
+        data = (post, feed)
+        execute_query(db_connection, query, data)
+    except my.IntegrityError as e:
+        print("IntegrityError")
+        print(e)
 
 
 @app.route('/hello')
@@ -27,7 +40,7 @@ def hello_world():
 
 @app.route('/')
 def index():
-    user = 0
+    user = 1
     return redirect('/%s' % (user))
 
 
@@ -38,14 +51,20 @@ def dashboard(user=1):
 
     feed = get_feed(user)
 
+    query = "SELECT postID FROM Posts \
+    WHERE description LIKE '%%%%%s%%%%' || title LIKE '%%%%%s%%%%' || tags LIKE '%%%%%s%%%%'" \
+    % (feed[1], feed[1], feed[1])
+    posts = execute_query(db_connection, query)
+
+    for post in posts:
+        add_to_feed(post, feed[0])
+
     query = """\
     SELECT Posts.postID, Posts.userID AS userID, username, graphic, sound, title, description, embedPostID, timeCreated, tags
     FROM Posts INNER JOIN Users ON Posts.userID = Users.userID
     LEFT JOIN Posts_Feeds ON Posts.postID = Posts_Feeds.postID
-    WHERE feedID = %d""" % (feed)
+    WHERE feedID = %d""" % (feed[0])
     posts = execute_query(db_connection, query)
-
-    # print(posts)
 
     comments = []
     for post in posts:
@@ -99,16 +118,13 @@ def add_post(user=1):
     '''
     data = (user, graphic, sound, title, description, embedPostID, tags)
     execute_query(db_connection, query, data)
+    print('posted!')
 
     query = '''SELECT postID FROM Posts ORDER BY postID DESC LIMIT 1'''
     post = execute_query(db_connection, query).fetchone()
     feed = get_feed(user)
 
-    query = 'INSERT INTO Posts_Feeds(postID, feedID) VALUES (%s,%s)'
-    data = (post[0], feed)
-    execute_query(db_connection, query, data)
-
-    print('posted!')
+    add_to_feed(post[0], feed[0])
 
     return redirect('/%s' % (user))
 
