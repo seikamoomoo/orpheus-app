@@ -1,15 +1,26 @@
 from flask import Flask, render_template
 from flask import request, redirect
 from db_connector import connect_to_database, execute_query
+from flask_bootstrap import Bootstrap
 
-app = Flask(__name__)
+
+def create_app():
+    app = Flask(__name__)
+    Bootstrap(app)
+
+    return app
+
+
+app = create_app()
+
 
 @app.route('/hello')
 def hello_world():
     return 'Hello, World! Orpheus here'
 
+
 @app.route('/')
-def dashboard(feed = 1):
+def dashboard(feed=1):
     print("Fetching and rendering dashboard")
     db_connection = connect_to_database()
     query = """\
@@ -18,6 +29,7 @@ def dashboard(feed = 1):
     LEFT JOIN Posts_Feeds ON Posts.postID = Posts_Feeds.postID
     WHERE feedID = %d""" % (feed)
     posts = execute_query(db_connection, query)
+
     # print(posts)
 
     comments = []
@@ -30,6 +42,22 @@ def dashboard(feed = 1):
         post_comments = execute_query(db_connection, query)
         for com in post_comments:
             comments.append(com)
+
+    '''
+    Posts indices
+    ----------------------------------------------
+    0      1      2        3       4
+    postID userID username graphic sound
+    ----------------------------------------------
+    5     6           7           8           9
+    title description embedPostID timeCreated tags
+    ______________________________________________
+
+    Comments indices
+    ----------------------------------------------
+    0         1      2      3        4
+    commentID postID userID username text
+    '''
 
     return render_template(
         'index.html',

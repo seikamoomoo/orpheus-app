@@ -10,7 +10,7 @@ yellow: #f2d03b rgb(242, 208, 59)
 header {
   display: flex;
   background-color: #003056;
-  height: 17vh;
+  height: 125px;
   background-image: linear-gradient(#003056, #033a66);
   position: -webkit-sticky;
   position: sticky;
@@ -36,13 +36,16 @@ header {
 
  /* Nav bar */
 
+.site-title {
+  margin: 20px 20px;
+}
+
 .site-title a {
   font-family: 'Montserrat', sans-serif;
   font-size: 60px;
   font-weight: bold;
   color: #f2d03b;
   text-decoration: none;
-  margin: 20px;
 }
 
 .topnav {
@@ -85,6 +88,21 @@ header {
   margin-bottom: 10px;
 }
 
+.post-username, .comment-username {
+  display: inline;
+  text-decoration: none;
+  font-weight: bold;
+  color: #00a1d8;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.post-username {
+  position: relative;
+  top: 3px;
+  font-size: 16px;
+}
+
 .post-options-container {
   float: right;
   margin-bottom: 10px;
@@ -100,7 +118,9 @@ header {
 
 .post-graphic-container img {
   max-height: 750px;
-  max-width: 500px;
+  max-width: 468px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .post-content-container {
@@ -122,14 +142,23 @@ header {
 }
 
 .post-info-container {
-  margin: 10px 0 10px 0;
+  margin: 15px 0 10px 0;
   font-size: 12px;
   color: gray;
+}
+
+.post-comments-container {
+  margin-bottom: 10px;
 }
 
 .send-comments-container {
   display: flex;
   flex-direction: row;
+}
+
+.comment-text {
+  margin-top: 5px;
+  font-size: 13px;
 }
 
 hr {
@@ -182,7 +211,7 @@ button {
   background-color: #003056;
   border-width: 1px;
   border-color: #f6c439;
-  font-size: 40px;
+  font-size: 35px;
   font-weight: 600;
   height: 55px;
   width: 55px;
@@ -267,7 +296,8 @@ input, textarea {
 }
 
 /* Modal */
-#modal-backdrop {
+
+/* #modal-backdrop {
   position: fixed;
   top: 0;
   bottom: 0;
@@ -275,15 +305,13 @@ input, textarea {
   right: 0;
   z-index: 1000;
   background-color: rgba(0, 0, 0, 0.75);
-}
+} */
 
 #create-modal {
-  position: fixed;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 1010;
   overflow: scroll;
 }
 
@@ -299,6 +327,7 @@ input, textarea {
   margin: 40px auto;
   background-color: #ffffff;
   border-radius: 5px;
+  z-index: 1010;
 }
 
 .modal-header {
@@ -320,8 +349,8 @@ input, textarea {
 
 #modal-close {
   position: absolute;
-  right: 15px;
-  top: 5px;
+  right: 20px;
+  top: 15px;
   font-size: 30px;
   border: none;
   background: none;
@@ -368,7 +397,7 @@ input, textarea {
   flex: 6 200px;
   padding: 8px;
   font-size: 14px;
-  height: 15px;
+  height: 30px;
   margin: 5px 10px;
 }
 
@@ -391,7 +420,7 @@ input, textarea {
 
 #post-description-input {
   font-size: 14px;
-  height: 90px;
+  height: 100px;
   flex: 6 200px;
   padding: 8px;
   margin: 5px 10px;
