@@ -13,6 +13,12 @@ def create_app():
 
 app = create_app()
 
+def get_feed(user):
+    db_connection = connect_to_database()
+    query = 'SELECT feedID from ContentFeeds WHERE userID = %d' % (user)
+    feed = execute_query(db_connection, query).fetchone()
+    return feed[0]
+
 
 @app.route('/hello')
 def hello_world():
@@ -20,9 +26,18 @@ def hello_world():
 
 
 @app.route('/')
-def dashboard(feed=1):
+def index():
+    user = 0
+    return redirect('/%s' % (user))
+
+
+@app.route('/<int:user>')
+def dashboard(user=1):
     print("Fetching and rendering dashboard")
     db_connection = connect_to_database()
+
+    feed = get_feed(user)
+
     query = """\
     SELECT Posts.postID, Posts.userID AS userID, username, graphic, sound, title, description, embedPostID, timeCreated, tags
     FROM Posts INNER JOIN Users ON Posts.userID = Users.userID
@@ -62,27 +77,55 @@ def dashboard(feed=1):
     return render_template(
         'index.html',
         posts=posts,
-        comments=comments
+        comments=comments,
+        user=user
         )
 
 
-# @app.route('/add_new_people', methods=['POST','GET'])
-# def add_new_people():
-#     db_connection = connect_to_database()
-#     if request.method == 'GET':
-#         query = 'SELECT id, name from bsg_planets'
-#         result = execute_query(db_connection, query).fetchall()
-#         print(result)
-#
-#         return render_template('people_add_new.html', planets = result)
-#     elif request.method == 'POST':
-#         print("Add new people!")
-#         fname = request.form['fname']
-#         lname = request.form['lname']
-#         age = request.form['age']
-#         homeworld = request.form['homeworld']
-#
-#         query = 'INSERT INTO bsg_people (fname, lname, age, homeworld) VALUES (%s,%s,%s,%s)'
-#         data = (fname, lname, age, homeworld)
-#         execute_query(db_connection, query, data)
-#         return ('Person added!')
+@app.route('/<int:user>/add_post', methods=['POST'])
+def add_post(user=1):
+
+    db_connection = connect_to_database()
+    graphic = request.form['graphic']
+    sound = request.form['sound']
+    title = request.form['title']
+    description = request.form['description']
+    embedPostID = request.form['embed']
+    tags = request.form['tags']
+
+    query = '''
+    INSERT INTO Posts(userID, graphic, sound, title, description, embedPostID, tags)
+    VALUES (%s,%s,%s,%s,%s,%s,%s)
+    '''
+    data = (user, graphic, sound, title, description, embedPostID, tags)
+    execute_query(db_connection, query, data)
+
+    query = '''SELECT postID FROM Posts ORDER BY postID DESC LIMIT 1'''
+    post = execute_query(db_connection, query).fetchone()
+    feed = get_feed(user)
+
+    query = 'INSERT INTO Posts_Feeds(postID, feedID) VALUES (%s,%s)'
+    data = (post[0], feed)
+    execute_query(db_connection, query, data)
+
+    print('posted!')
+
+    return redirect('/%s' % (user))
+
+
+@app.route('/<int:user>/<int:post>/add_comment', methods=['POST'])
+def add_comment(post, user=1):
+
+    db_connection = connect_to_database()
+    comment = request.form['comment']
+
+    query = '''
+    INSERT INTO Comments(postID, userID, text)
+    VALUES (%s,%s,%s)
+    '''
+    data = (post, user, comment)
+    execute_query(db_connection, query, data)
+
+    print('comment posted!')
+
+    return redirect('/%s#%s' % (user, post))

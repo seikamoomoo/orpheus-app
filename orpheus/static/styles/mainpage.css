@@ -23,7 +23,7 @@ header {
   margin: 0;
   font-family: 'Open Sans', sans-serif;
   font-size: 14px;
-  background-image: linear-gradient(#05518b, rgba(0, 161, 216, 0.5));
+  /* background-image: linear-gradient(#05518b, rgba(0, 161, 216, 0.5)); */
  }
 
  a {

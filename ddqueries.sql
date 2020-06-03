@@ -20,13 +20,12 @@ CREATE TABLE `Posts` (
   `sound` nvarchar(260) NOT NULL,
   `graphic` nvarchar(260) NOT NULL,
   `tags` varchar(255),
-  `embedPostID` int(11),
+  `embedPostID` int(11) DEFAULT NULL,
   `title` varchar(255) NOT NULL,
   `description` text,
   PRIMARY KEY (`postID`),
   INDEX (`userID`),
-  FOREIGN KEY (`userID`) REFERENCES `Users`(`userID`) ON UPDATE CASCADE ON DELETE CASCADE,
-  FOREIGN KEY (`embedPostID`) REFERENCES `Posts`(`postID`)
+  FOREIGN KEY (`userID`) REFERENCES `Users`(`userID`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `Comments` (
