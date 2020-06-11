@@ -60,10 +60,11 @@ def dashboard(user=1):
         add_to_feed(post, feed[0])
 
     query = """\
-    SELECT Posts.postID, Posts.userID AS userID, username, graphic, sound, title, description, embedPostID, timeCreated, tags
+    SELECT Posts.postID, Posts.userID AS userID, username, graphic, sound,
+    title, description, embedPostID, timeCreated, tags
     FROM Posts INNER JOIN Users ON Posts.userID = Users.userID
     LEFT JOIN Posts_Feeds ON Posts.postID = Posts_Feeds.postID
-    WHERE feedID = %d""" % (feed[0])
+    WHERE feedID = %d ORDER BY timeCreated DESC""" % (feed[0])
     posts = execute_query(db_connection, query)
 
     comments = []
