@@ -146,3 +146,54 @@ def add_comment(post, user=1):
     print('comment posted!')
 
     return redirect('/%s#%s' % (user, post))
+
+@app.route('/<int:user>/<int:post>/update_post', methods=['POST','GET'])
+
+def update_post(user, post):
+
+    db_connection = connect_to_database()
+
+    if request.method == 'GET':
+
+        query = """\
+        SELECT Posts.postID, Posts.userID AS userID, username, graphic, sound,
+        title, description, embedPostID, timeCreated, tags
+        FROM Posts INNER JOIN Users ON Posts.userID = Users.userID
+        LEFT JOIN Posts_Feeds ON Posts.postID = Posts_Feeds.postID
+        WHERE Posts.postID = %d""" % (post)
+        post = execute_query(db_connection, query).fetchone()
+
+        if post is None:
+            return "Post not found."
+
+        comments = []
+        postID = post[0]
+        query = """\
+        SELECT commentID, postID, Users.userID, username, text FROM Comments
+        LEFT JOIN Users ON Comments.userID = Users.userID
+        WHERE postID = %d""" % (postID)
+        post_comments = execute_query(db_connection, query)
+        for com in post_comments:
+            comments.append(com)
+
+        return render_template(
+            'edit-post.html',
+            post=post,
+            comments=comments
+            )
+
+    elif request.method == 'POST':
+        print('The POST request')
+        graphic = request.form['graphic']
+        sound = request.form['sound']
+        title = request.form['title']
+        description = request.form['description']
+        embedPostID = request.form['embed']
+        tags = request.form['tags']
+
+        query = "UPDATE Posts SET graphic = %s, sound = %s, title = %s, description = %s, embedPostID = %s, tags = %s WHERE postID = %s"
+        data = (graphic, sound, title, description, embedPostID, tags, post)
+        result = execute_query(db_connection, query, data)
+        print(str(result.rowcount) + " row(s) updated")
+
+        return redirect('/%s#%s' % (user, post))
