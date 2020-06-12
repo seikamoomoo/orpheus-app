@@ -88,6 +88,10 @@ header {
   margin-bottom: 10px;
 }
 
+.go-to-edit {
+  display: inline;
+}
+
 .post-username, .comment-username {
   display: inline;
   text-decoration: none;
