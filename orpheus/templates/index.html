@@ -16,7 +16,9 @@
           <form class="go-to-edit" action="/{{post[1]}}/{{post[0]}}/update_post">
             <button type="submit" class="post-edit-button action-button">Edit</button>
           </form>
-          <button type="button" class="post-delete-button action-button">Delete</button>
+          <form class="go-to-edit" action="/{{post[1]}}/{{post[0]}}/delete_post">
+            <button type="submit" class="post-delete-button action-button">Delete</button>
+          </form>
         </span>
         {% endif %}
 
@@ -62,7 +64,6 @@
         <hr />
 
         <div class="post-comments-container">
-
           <div id="comments">
 
               {% for comment in comments %}
@@ -76,6 +77,11 @@
                       {{comment[4]}}
                     </span>
                   </div>
+                  {% if user == comment[2] %}
+                  <form class="go-to-edit" action="/{{post[1]}}/{{comment[0]}}/delete_comment">
+                    <button type="submit" class="comment-delete-button action-button">Delete</button>
+                  </form>
+                  {% endif %}
                 </div>
                 {% endif %}
               {% endfor %}
