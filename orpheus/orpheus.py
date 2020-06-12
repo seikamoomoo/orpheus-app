@@ -163,7 +163,7 @@ def profile(username):
     userdata = execute_query(db_connection, query).fetchone()
 
     print(userdata)
-    user_id = get_userID(username);
+    user_id = userdata[0];
     print("userID = %s" % user_id);
 
     query = """\
@@ -194,6 +194,30 @@ def profile(username):
     comments=comments,
     user=user_id
     );
+
+  
+@app.route('/create-new-profile')
+def create_new_profile():
+    return render_template("create-new-profile.html")
+
+@app.route('/add-profile', methods=['POST','GET'])
+def add_new_profile():
+    db_connection = connect_to_database()
+
+    print('add user.')
+    username = request.form['username']
+    password = request.form['password']
+    email = request.form['email']
+    print(email)
+
+    query = '''
+    INSERT INTO Users(username, password, email)
+    VALUES (%s,%s,%s)
+    '''
+    data = (username, password, email)
+    execute_query(db_connection, query, data)
+    return render_template("create-new-profile.html")
+
 
 
 @app.route('/<int:user>/<int:post>/update_post', methods=['POST','GET'])
