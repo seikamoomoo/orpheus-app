@@ -21,7 +21,6 @@ def get_feed(user):
     feed = execute_query(db_connection, query).fetchone()
     return feed
 
-
 def add_to_feed(post, feed):
     db_connection = connect_to_database()
     try:
@@ -147,6 +146,56 @@ def add_comment(post, user=1):
 
     return redirect('/%s#%s' % (user, post))
 
+
+def get_userID(username):
+    db_connection = connect_to_database()
+    query = "SELECT userID from Users WHERE username = '%s' " % (username)
+    userID = execute_query(db_connection, query).fetchone()
+    return userID
+
+
+@app.route('/users/<string:username>')
+def profile(username):
+    print("Fetching and rendering user Profile")
+    db_connection = connect_to_database()
+
+    query = "SELECT userID, username, password, email FROM Users WHERE username= '%s' " % (username)
+    userdata = execute_query(db_connection, query).fetchone()
+
+    print(userdata)
+    user_id = get_userID(username);
+    print("userID = %s" % user_id);
+
+    query = """\
+    SELECT Posts.postID, Posts.userID AS userID, username, graphic, sound,
+    title, description, embedPostID, timeCreated, tags
+    FROM Posts INNER JOIN Users ON Posts.userID = Users.userID
+    WHERE Posts.userID = %d ORDER BY timeCreated DESC""" % (user_id);
+
+    posts = execute_query(db_connection, query).fetchall()
+    print(posts)
+
+    comments = []
+    for post in posts:
+         postID = post[0]
+         query = """\
+         SELECT commentID, postID, Users.userID, username, text FROM Comments
+         LEFT JOIN Users ON Comments.userID = Users.userID
+         WHERE postID = %d""" % (postID)
+         post_comments = execute_query(db_connection, query)
+         for com in post_comments:
+             comments.append(com)
+
+
+
+
+    return render_template('profile.html', userdata=userdata,
+    posts=posts,
+    comments=comments,
+    user=user_id
+    );
+
+  
 @app.route('/<int:user>/<int:post>/update_post', methods=['POST','GET'])
 
 def update_post(user, post):
