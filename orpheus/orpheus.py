@@ -195,6 +195,7 @@ def profile(username):
     user=user_id
     );
 
+  
 @app.route('/create-new-profile')
 def create_new_profile():
     return render_template("create-new-profile.html")
@@ -216,6 +217,7 @@ def add_new_profile():
     data = (username, password, email)
     execute_query(db_connection, query, data)
     return render_template("create-new-profile.html")
+
 
 
 @app.route('/<int:user>/<int:post>/update_post', methods=['POST','GET'])
@@ -268,3 +270,33 @@ def update_post(user, post):
         print(str(result.rowcount) + " row(s) updated")
 
         return redirect('/%s#%s' % (user, post))
+
+
+@app.route('/<int:user>/<int:post>/delete_post')
+def delete_post(user, post):
+
+    db_connection = connect_to_database()
+    query = "DELETE FROM Posts WHERE postID = %s" % (post)
+
+    result = execute_query(db_connection, query)
+
+    return redirect('/%s' % (user))
+
+
+@app.route('/<int:user>/<int:comment>/delete_comment')
+def delete_comment(user, comment):
+
+    db_connection = connect_to_database()
+
+    query = "SELECT Posts.postID FROM Posts \
+    LEFT JOIN Comments \
+    ON Comments.postID = Posts.postID \
+    WHERE commentID = %s" % comment
+
+    post = execute_query(db_connection, query).fetchone()
+
+    query = "DELETE FROM Comments WHERE commentID = %s" % (comment)
+
+    result = execute_query(db_connection, query)
+
+    return redirect('/%s#%s' % (user, post))
