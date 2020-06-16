@@ -11,10 +11,16 @@
           {{post[2]}}
         </a>
 
+        {% if user == post[1] %}
         <span class="post-options-container">
-          <button type="button" class="post-edit-button action-button">Edit</button>
-          <button type="button" class="post-delete-button action-button">Delete</button>
+          <form class="go-to-edit" action="/{{post[1]}}/{{post[0]}}/update_post">
+            <button type="submit" class="post-edit-button action-button">Edit</button>
+          </form>
+          <form class="go-to-edit" action="/{{post[1]}}/{{post[0]}}/delete_post">
+            <button type="submit" class="post-delete-button action-button">Delete</button>
+          </form>
         </span>
+        {% endif %}
 
       </div>
 
@@ -32,7 +38,7 @@
         </div>
 
         <div class="post-content-container">
-          <a href="posts/{{post[0]}}" class="post-title">
+          <a href="{{post[1]}}/{{post[0]}}" class="post-title">
             {{post[5]}}
           </a>
           <p class="post-description">
@@ -58,7 +64,6 @@
         <hr />
 
         <div class="post-comments-container">
-
           <div id="comments">
 
               {% for comment in comments %}
@@ -72,6 +77,11 @@
                       {{comment[4]}}
                     </span>
                   </div>
+                  {% if user == comment[2] %}
+                  <form class="go-to-edit" action="/{{post[1]}}/{{comment[0]}}/delete_comment">
+                    <button type="submit" class="comment-delete-button action-button">Delete</button>
+                  </form>
+                  {% endif %}
                 </div>
                 {% endif %}
               {% endfor %}
@@ -95,12 +105,9 @@
 
   <button type="button" id="create-post-button" data-toggle="modal" data-target="#create-modal"> + </button>
 
-  <!-- <a data-toggle="modal" data-target="#editModal"><span class="glyphicon glyphicon-pencil"></span></a> -->
 
   <!-- Modal Stuff -->
-  <!-- <div id="modal-backdrop" class="hidden"></div> -->
   <div class="modal fade" id="create-modal" role="dialog">
-  <!-- <div id="create-modal" class="hidden"> -->
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -108,7 +115,6 @@
           <button type="button" id="modal-close" class="modal-hide-button close" data-dismiss="modal">&times;</button>
         </div>
 
-        <!-- <hr id="create-hr"> -->
 
         <form role="form" id="add-post" action="{{user}}/add_post" method="post">
         <div class="modal-body">

@@ -21,7 +21,6 @@ def get_feed(user):
     feed = execute_query(db_connection, query).fetchone()
     return feed
 
-
 def add_to_feed(post, feed):
     db_connection = connect_to_database()
     try:
@@ -144,5 +143,160 @@ def add_comment(post, user=1):
     execute_query(db_connection, query, data)
 
     print('comment posted!')
+
+    return redirect('/%s#%s' % (user, post))
+
+
+def get_userID(username):
+    db_connection = connect_to_database()
+    query = "SELECT userID from Users WHERE username = '%s' " % (username)
+    userID = execute_query(db_connection, query).fetchone()
+    return userID
+
+
+@app.route('/users/<string:username>')
+def profile(username):
+    print("Fetching and rendering user Profile")
+    db_connection = connect_to_database()
+
+    query = "SELECT userID, username, password, email FROM Users WHERE username= '%s' " % (username)
+    userdata = execute_query(db_connection, query).fetchone()
+
+    print(userdata)
+    user_id = userdata[0];
+    print("userID = %s" % user_id);
+
+    query = """\
+    SELECT Posts.postID, Posts.userID AS userID, username, graphic, sound,
+    title, description, embedPostID, timeCreated, tags
+    FROM Posts INNER JOIN Users ON Posts.userID = Users.userID
+    WHERE Posts.userID = %d ORDER BY timeCreated DESC""" % (user_id);
+
+    posts = execute_query(db_connection, query).fetchall()
+    print(posts)
+
+    comments = []
+    for post in posts:
+         postID = post[0]
+         query = """\
+         SELECT commentID, postID, Users.userID, username, text FROM Comments
+         LEFT JOIN Users ON Comments.userID = Users.userID
+         WHERE postID = %d""" % (postID)
+         post_comments = execute_query(db_connection, query)
+         for com in post_comments:
+             comments.append(com)
+
+
+
+
+    return render_template('profile.html', userdata=userdata,
+    posts=posts,
+    comments=comments,
+    user=user_id
+    );
+
+  
+@app.route('/create-new-profile')
+def create_new_profile():
+    return render_template("create-new-profile.html")
+
+@app.route('/add-profile', methods=['POST','GET'])
+def add_new_profile():
+    db_connection = connect_to_database()
+
+    print('add user.')
+    username = request.form['username']
+    password = request.form['password']
+    email = request.form['email']
+    print(email)
+
+    query = '''
+    INSERT INTO Users(username, password, email)
+    VALUES (%s,%s,%s)
+    '''
+    data = (username, password, email)
+    execute_query(db_connection, query, data)
+    return render_template("create-new-profile.html")
+
+
+
+@app.route('/<int:user>/<int:post>/update_post', methods=['POST','GET'])
+
+def update_post(user, post):
+
+    db_connection = connect_to_database()
+
+    if request.method == 'GET':
+
+        query = """\
+        SELECT Posts.postID, Posts.userID AS userID, username, graphic, sound,
+        title, description, embedPostID, timeCreated, tags
+        FROM Posts INNER JOIN Users ON Posts.userID = Users.userID
+        LEFT JOIN Posts_Feeds ON Posts.postID = Posts_Feeds.postID
+        WHERE Posts.postID = %d""" % (post)
+        post = execute_query(db_connection, query).fetchone()
+
+        if post is None:
+            return "Post not found."
+
+        comments = []
+        postID = post[0]
+        query = """\
+        SELECT commentID, postID, Users.userID, username, text FROM Comments
+        LEFT JOIN Users ON Comments.userID = Users.userID
+        WHERE postID = %d""" % (postID)
+        post_comments = execute_query(db_connection, query)
+        for com in post_comments:
+            comments.append(com)
+
+        return render_template(
+            'edit-post.html',
+            post=post,
+            comments=comments
+            )
+
+    elif request.method == 'POST':
+        print('The POST request')
+        graphic = request.form['graphic']
+        sound = request.form['sound']
+        title = request.form['title']
+        description = request.form['description']
+        embedPostID = request.form['embed']
+        tags = request.form['tags']
+
+        query = "UPDATE Posts SET graphic = %s, sound = %s, title = %s, description = %s, embedPostID = %s, tags = %s WHERE postID = %s"
+        data = (graphic, sound, title, description, embedPostID, tags, post)
+        result = execute_query(db_connection, query, data)
+        print(str(result.rowcount) + " row(s) updated")
+
+        return redirect('/%s#%s' % (user, post))
+
+
+@app.route('/<int:user>/<int:post>/delete_post')
+def delete_post(user, post):
+
+    db_connection = connect_to_database()
+    query = "DELETE FROM Posts WHERE postID = %s" % (post)
+
+    result = execute_query(db_connection, query)
+
+    return redirect('/%s' % (user))
+
+
+@app.route('/<int:user>/<int:comment>/delete_comment')
+def delete_comment(user, comment):
+
+    db_connection = connect_to_database()
+
+    query = "SELECT Posts.postID FROM Posts \
+    LEFT JOIN Comments \
+    ON Comments.postID = Posts.postID \
+    WHERE commentID = %s" % comment
+
+    post = execute_query(db_connection, query).fetchone()
+
+    query = "DELETE FROM Comments WHERE commentID = %s" % (comment)
+
+    result = execute_query(db_connection, query)
 
     return redirect('/%s#%s' % (user, post))

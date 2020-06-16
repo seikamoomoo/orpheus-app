@@ -88,6 +88,10 @@ header {
   margin-bottom: 10px;
 }
 
+.go-to-edit {
+  display: inline;
+}
+
 .post-username, .comment-username {
   display: inline;
   text-decoration: none;
@@ -259,6 +263,20 @@ button {
 
 .post-delete-button{
   margin: 0 0 0 2px;
+}
+
+.comment-delete-button {
+  display: inline;
+  padding: 0;
+  margin: 0;
+  font-size: 12px;
+  background-color: transparent;
+  color: #B12929;
+}
+
+.comment-delete-button:hover {
+  color: #B12929;
+  background-color: transparent;
 }
 
 .send-button {

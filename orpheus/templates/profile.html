@@ -1,12 +1,153 @@
-<div class="profile" user-id="{{userID}}">
-  <h1 class="profile-username">{{user.username}}</h2>
-</div>
-<section class="user-posts">
+{% extends "layouts/main.html" %}
+{% block content %}
+<main class="content">
 
-    {{#each posts}}
-      {{#if userID}}
-        {{> post}}
-      {{/if}}
-    {{/each}}
+<div class="profile" user-id="{{userID}}">
+  <h1 class="profile-username">{{userdata[1]}}</h1>
+</div>
+
+<section id="posts">
+
+  {% for post in posts %}
+  <div class="post" id="{{post[0]}}" user-id="{{post[1]}}">
+
+    <div class="post-header">
+      <a href="#" class="post-username">
+        {{post[2]}}
+      </a>
+
+    </div>
+
+    <div class="post-contents">
+
+      <div class="post-graphic-container">
+        <img src="{{post[3]}}" alt="{{post[5]}}">
+      </div>
+
+      <div class="post-sound-container">
+        <audio controls>
+          <source src="{{post[4]}}">
+          Your browser does not support the audio element.
+        </audio>
+      </div>
+
+      <div class="post-content-container">
+        <a href="posts/{{post[0]}}" class="post-title">
+          {{post[5]}}
+        </a>
+        <p class="post-description">
+          {{post[6]}}
+        </p>
+      </div>
+
+      {% if post[7] %}
+      <div class="post-embed-container">
+        <a href="posts/{{post[7]}}">
+          [embedded post preview]
+        </a>
+      </div>
+      {% endif %}
+
+      <!-- <hr> -->
+
+      <div class="post-info-container">
+        <div class="post-time">{{post[8]}}</div>
+        <div class="post-tags">{{post[9]}}</div>
+      </div>
+
+      <hr />
+
+      <div class="post-comments-container">
+
+        <div id="comments">
+
+            {% for comment in comments %}
+              {% if comment[1] == post[0] %}
+              <div class="comment" comment-id="{{comment[0]}}" post-id="{{comment[1]}}" user-id="{{comment[2]}}">
+                <div class="comment-contents">
+                  <a href="users/{{comment[3]}}"class="comment-username">
+                    {{comment[3]}}
+                  </a>
+                  <span class="comment-text">
+                    {{comment[4]}}
+                  </span>
+                </div>
+              </div>
+              {% endif %}
+            {% endfor %}
+
+        </div>
+
+      </div>
+
+      <form role="form" id="add-comment" action="{{user}}/{{post[0]}}/add_comment" method="post">
+      <div class="send-comments-container">
+        <input type="text" id="text-input" class="text-box" name="comment" placeholder="Leave a comment (be nice!)">
+        <button type="submit" class="send-button action-button">Send</button>
+      </div>
+      </form>
+
+    </div>
+  </div>
+  {% endfor %}
 
 </section>
+
+
+  <button type="button" id="create-post-button" data-toggle="modal" data-target="#create-modal"> + </button>
+
+  <!-- <a data-toggle="modal" data-target="#editModal"><span class="glyphicon glyphicon-pencil"></span></a> -->
+
+  <!-- Modal Stuff -->
+  <!-- <div id="modal-backdrop" class="hidden"></div> -->
+  <div class="modal fade" id="create-modal" role="dialog">
+  <!-- <div id="create-modal" class="hidden"> -->
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Create a Post</h3>
+          <button type="button" id="modal-close" class="modal-hide-button close" data-dismiss="modal">&times;</button>
+        </div>
+
+        <!-- <hr id="create-hr"> -->
+
+        <form role="form" id="add-post" action="{{user}}/add_post" method="post">
+        <div class="modal-body">
+          <div class="post-input-element" id="title-element">
+            <input type="text" id="post-title-input" class="form-control" name="title" placeholder="Title" required></input>
+          </div>
+
+          <div class="post-input-element">
+            <input type="text" id="post-graphic-input" placeholder="graphic" class="form-control" name="graphic" required>
+          </div>
+
+          <div class="post-input-element">
+            <input type="text" id="post-sound-input" placeholder="sound" class="form-control" name="sound" required>
+          </div>
+
+          <div class="post-input-element" id="description-element">
+            <textarea id="post-description-input" class="form-control" name="description" placeholder="description"></textarea>
+          </div>
+
+          <div class="post-input-element">
+            <input type="text" id="post-embed-input" class="form-control" name="embed" placeholder="embed URL">
+          </div>
+
+          <div class="post-input-element">
+            <input type="text" id="post-tags-input" class="form-control" name="tags" placeholder="tags">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" id="modal-cancel" class="modal-hide-button action-button" data-dismiss="modal">Cancel</button>
+          <button type="submit" id="modal-accept" class="action-button">Publish</button>
+        </div>
+      </form>
+      </div>
+
+
+    </div>
+  </div>
+</main>
+
+{% endblock %}
